@@ -1,0 +1,10 @@
+match_id,home_team,away_team,commence_time,home_win_odds,draw_odds,away_win_odds
+ed41d07747b4e6b2afb6fe23345a82af,Grêmio,Fortaleza,2025-07-29,2.2,3.1,3.3
+6ab2631f67e5d37146e5c1c57baf58b6,Sport Recife,Bahia,2025-08-02,2.8,3.1,2.5
+8c0d6a68963b440f4ad05ced12b18481,Mirassol,Vasco da Gama,2025-08-02,2.0,3.1,3.9
+6e077a2d88a987af9f9abcf74e711456,Botafogo,Cruzeiro,2025-08-03,2.1,3.0,3.8
+fe431ee6fa25e71f298780318bdb99ed,Atletico Mineiro,Bragantino-SP,2025-08-03,1.91,3.25,4.2
+80890f84d1a8357f29d4e12d29775141,Ceará,Flamengo,2025-08-03,4.2,3.1,1.95
+dae95ae49b15b3567b38efc10cc518cf,Vitoria,Palmeiras,2025-08-03,4.8,3.25,1.8
+1c5e57a53e76aad50a947896df7e47d6,Internacional,Sao Paulo,2025-08-03,2.0,3.1,4.0
+1729f89752093997e5d30c7a49f0c4f4,Santos,Juventude,2025-08-04,1.44,4.0,7.0

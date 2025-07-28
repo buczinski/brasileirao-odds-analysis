@@ -1,0 +1,4 @@
+-- SQLite
+SELECT * 
+FROM odds_results
+WHERE away_win_odds > 3.0
