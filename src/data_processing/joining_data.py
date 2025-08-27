@@ -74,59 +74,80 @@ def create_team_mapping(odds_teams, results_teams):
     return team_mapping
 
 def standardize_team_names(odds_df, results_df, team_mapping):
-    """Apply team name mapping to standardize team names"""
+    """Apply team name mapping to standardize team names and prepare date columns"""
+    # Map team names
     odds_df['home_team_std'] = odds_df['home_team'].map(lambda x: team_mapping.get(x, x))
     odds_df['away_team_std'] = odds_df['away_team'].map(lambda x: team_mapping.get(x, x))
-    results_df['home_team_std'] = results_df['home_team']  # No need to map results teams
+    results_df['home_team_std'] = results_df['home_team']
     results_df['away_team_std'] = results_df['away_team']
+    
+    # Standardize dates
+    if 'commence_time' in odds_df.columns and 'date' in results_df.columns:
+        print("Standardizing date formats for matching...")
+        
+        # Convert to datetime and extract date only (no time)
+        odds_df['match_date'] = pd.to_datetime(odds_df['commence_time']).dt.date
+        results_df['match_date'] = pd.to_datetime(results_df['date']).dt.date
+        
+        # Print date ranges for debugging
+        print(f"Odds date range: {odds_df['match_date'].min()} to {odds_df['match_date'].max()}")
+        print(f"Results date range: {results_df['match_date'].min()} to {results_df['match_date'].max()}")
+    else:
+        print("Warning: Date columns not found for matching")
     
     return odds_df, results_df
 
-def check_standardized_teams(odds_df):
-    """Check standardized team names"""
-    odds_std_teams = set(odds_df['home_team_std'].unique()) | set(odds_df['away_team_std'].unique())
-    
-    print("\nUnique standardized team names in odds data:")
-    for team in sorted(odds_std_teams):
-        print(f"  - '{team}'")
-    
-    return odds_std_teams
-
 def merge_datasets(odds_df, results_df):
-    """Join datasets on standardized team names"""
-    merged_df = pd.merge(
-        odds_df,
-        results_df,
-        how='left',
-        left_on=['home_team_std', 'away_team_std'],
-        right_on=['home_team_std', 'away_team_std']
-    )
+    """Join datasets on standardized team names and match date"""
+    # Check if date columns were prepared
+    if 'match_date' in odds_df.columns and 'match_date' in results_df.columns:
+        print("Merging on team names and match date...")
+        
+        # Debug: Show a few sample teams and dates before merging
+        print("\nSample data before merge:")
+        sample = odds_df[['home_team_std', 'away_team_std', 'match_date']].head(3)
+        print("Odds sample:")
+        print(sample)
+        
+        # Try to find these exact matches in results
+        for _, row in sample.iterrows():
+            home = row['home_team_std']
+            away = row['away_team_std']
+            date = row['match_date']
+            matches = results_df[(results_df['home_team_std'] == home) & 
+                               (results_df['away_team_std'] == away) &
+                               (results_df['match_date'] == date)]
+            print(f"Found {len(matches)} exact matches for {home} vs {away} on {date}")
+        
+        # Perform merge with date
+        merged_df = pd.merge(
+            odds_df,
+            results_df,
+            how='left',
+            left_on=['home_team_std', 'away_team_std', 'match_date'],
+            right_on=['home_team_std', 'away_team_std', 'match_date']
+        )
+    else:
+        # Fall back to team-only merge
+        print("Date columns not available, merging on team names only...")
+        merged_df = pd.merge(
+            odds_df,
+            results_df,
+            how='left',
+            left_on=['home_team_std', 'away_team_std', 'commence_time'],
+            right_on=['home_team_std', 'away_team_std', 'date']
+        )
+    
+    # Check merge results
+    match_count = merged_df['result'].notna().sum() if 'result' in merged_df.columns else 0
+    print(f"Merge result: {match_count} of {len(merged_df)} records matched with results")
     
     return merged_df
-
-def check_unmatched_teams(odds_df, results_df):
-    """Check for unmatched teams between datasets"""
-    print("\nChecking matches:")
-    unmatched_count = 0
-    
-    for _, row in odds_df.iterrows():
-        home_team = row['home_team_std']
-        away_team = row['away_team_std']
-        
-        # Find this match in results
-        match_found = results_df[(results_df['home_team_std'] == home_team) & 
-                                (results_df['away_team_std'] == away_team)]
-        
-        if len(match_found) == 0:
-            print(f"No match found for: {home_team} vs {away_team}")
-            unmatched_count += 1
-    
-    return unmatched_count
 
 def clean_merged_dataframe(merged_df):
     """Clean up and format the merged dataframe"""
     # Check how many odds entries were matched with results
-    matched_count = merged_df['date'].notna().sum() if 'date' in merged_df.columns else 0
+    matched_count = merged_df['result'].notna().sum() if 'result' in merged_df.columns else 0
     total_count = len(merged_df)
     
     if total_count > 0:
@@ -135,7 +156,7 @@ def clean_merged_dataframe(merged_df):
     
     # Columns to drop
     cols_to_drop = ['home_team_y', 'away_team_y', 'home_team_std', 'away_team_std', 
-                   'status', 'match_id_y', 'match_id_x', 'commence_time']
+                   'status', 'match_id_y', 'match_id_x', 'commence_time', 'match_date']
     
     # Drop columns that exist
     merged_df = merged_df.drop(columns=[col for col in cols_to_drop if col in merged_df.columns])
@@ -144,7 +165,7 @@ def clean_merged_dataframe(merged_df):
     merged_df = merged_df.rename(columns={
         'home_team_x': 'home_team', 
         'away_team_x': 'away_team',
-        'date': 'match_date'
+        'date': 'match_date'  # Keep the date with a clearer name
     })
     
     # Reorder columns to have matchday first
@@ -213,14 +234,9 @@ def join_data(odds_file, results_file, output_file, db_file="brasileirao.db"):
     # Standardize team names
     odds_df, results_df = standardize_team_names(odds_df, results_df, team_mapping)
     
-    # Check standardized teams
-    check_standardized_teams(odds_df)
-    
     # Merge datasets
     merged_df = merge_datasets(odds_df, results_df)
-    
-    # Check unmatched teams
-    check_unmatched_teams(odds_df, results_df)
+
     
     # Clean merged dataframe
     merged_df = clean_merged_dataframe(merged_df)
@@ -243,5 +259,3 @@ if __name__ == '__main__':
     
     # Run the main function
     join_data(odds_file, results_file, output_file, db_file)
-
-

@@ -1,10 +1,41 @@
 matchday,home_team,away_team,home_win_odds,draw_odds,away_win_odds,match_date,home_score,away_score,result
-14,Grêmio,Fortaleza,2.2,3.1,3.3,2025-07-29,,,
-18,Sport Recife,Bahia,2.8,3.1,2.5,2025-08-02,,,
-18,Mirassol,Vasco da Gama,2.0,3.1,3.9,2025-08-02,,,
-18,Botafogo,Cruzeiro,2.1,3.0,3.8,2025-08-03,,,
-18,Atletico Mineiro,Bragantino-SP,1.91,3.25,4.2,2025-08-03,,,
-18,Ceará,Flamengo,4.2,3.1,1.95,2025-08-03,,,
-18,Vitoria,Palmeiras,4.8,3.25,1.8,2025-08-03,,,
-18,Internacional,Sao Paulo,2.0,3.1,4.0,2025-08-03,,,
-18,Santos,Juventude,1.44,4.0,7.0,2025-08-04,,,
+14,Grêmio,Fortaleza,2.2,3.1,3.3,2025-07-29,2.0,1.0,Home
+18,Sport Recife,Bahia,2.8,3.1,2.5,2025-08-02,0.0,0.0,Draw
+18,Mirassol,Vasco da Gama,2.0,3.1,3.9,2025-08-02,3.0,2.0,Home
+18,Botafogo,Cruzeiro,2.1,3.0,3.8,2025-08-03,0.0,2.0,Away
+18,Atletico Mineiro,Bragantino-SP,1.91,3.25,4.2,2025-08-03,2.0,1.0,Home
+18,Ceará,Flamengo,4.2,3.1,1.95,2025-08-03,1.0,1.0,Draw
+18,Vitoria,Palmeiras,4.8,3.25,1.8,2025-08-03,2.0,2.0,Draw
+18,Internacional,Sao Paulo,2.0,3.1,4.0,2025-08-03,1.0,2.0,Away
+18,Santos,Juventude,1.44,4.0,7.0,2025-08-04,3.0,1.0,Home
+19,Bragantino-SP,Internacional,2.45,3.1,2.9,2025-08-09,1.0,3.0,Away
+19,Flamengo,Mirassol,1.35,4.6,9.5,2025-08-09,2.0,1.0,Home
+19,Sao Paulo,Vitoria,1.65,3.4,6.0,2025-08-09,2.0,0.0,Home
+19,Fortaleza,Botafogo,2.62,2.9,2.8,2025-08-09,0.0,5.0,Away
+19,Bahia,Fluminense,2.0,3.1,4.0,2025-08-09,3.0,3.0,Draw
+19,Vasco da Gama,Atletico Mineiro,2.6,3.0,2.9,2025-08-10,1.0,1.0,Draw
+19,Palmeiras,Ceará,1.44,4.0,7.5,2025-08-10,2.0,1.0,Home
+19,Cruzeiro,Santos,1.57,3.7,6.5,2025-08-10,1.0,2.0,Away
+19,Grêmio,Sport Recife,1.85,3.3,4.5,2025-08-10,0.0,1.0,Away
+19,Juventude,Corinthians,3.4,3.0,2.2,2025-08-11,2.0,1.0,Home
+20,Fluminense,Fortaleza,1.73,3.5,5.0,2025-08-16,2.0,1.0,Home
+20,Ceará,Bragantino-SP,2.19,3.05,3.66,2025-08-16,1.0,0.0,Home
+20,Vitoria,Juventude,1.75,3.4,4.75,2025-08-16,2.0,2.0,Draw
+20,Sport Recife,Sao Paulo,2.05,3.1,3.75,2025-08-16,2.0,2.0,Draw
+20,Corinthians,Bahia,2.62,2.9,2.8,2025-08-16,1.0,2.0,Away
+20,Atletico Mineiro,Grêmio,1.73,3.4,4.75,2025-08-17,1.0,3.0,Away
+20,Santos,Vasco da Gama,1.95,3.25,3.8,2025-08-17,0.0,6.0,Away
+20,Internacional,Flamengo,3.6,3.0,2.1,2025-08-17,1.0,3.0,Away
+20,Botafogo,Palmeiras,2.88,2.9,2.5,2025-08-17,0.0,1.0,Away
+20,Mirassol,Cruzeiro,3.0,3.0,2.38,2025-08-18,1.0,1.0,Draw
+14,Juventude,Vasco da Gama,3.0,3.0,2.3,2025-08-20,2.0,0.0,Home
+21,Bragantino-SP,Fluminense,2.3,3.1,3.0,2025-08-23,4.0,2.0,Home
+21,Cruzeiro,Internacional,1.7,3.4,5.0,2025-08-23,2.0,1.0,Home
+21,Grêmio,Ceará,2.05,3.1,3.7,2025-08-23,0.0,0.0,Draw
+21,Bahia,Santos,1.65,3.6,5.0,2025-08-24,2.0,0.0,Home
+21,Vasco da Gama,Corinthians,2.5,2.9,2.9,2025-08-24,2.0,3.0,Away
+21,Juventude,Botafogo,4.5,3.25,1.8,2025-08-24,1.0,3.0,Away
+21,Fortaleza,Mirassol,2.15,3.1,3.3,2025-08-24,0.0,1.0,Away
+21,Sao Paulo,Atletico Mineiro,1.95,3.0,4.0,2025-08-24,2.0,0.0,Home
+21,Palmeiras,Sport Recife,1.35,4.5,9.0,2025-08-25,3.0,0.0,Home
+21,Flamengo,Vitoria,1.22,5.0,13.0,2025-08-25,8.0,0.0,Home

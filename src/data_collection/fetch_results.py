@@ -2,6 +2,7 @@ import requests
 import pandas as pd
 from datetime import datetime
 import os
+import pytz
 
 def get_api_key():
     """Get API key from environment variable or return default"""
@@ -35,7 +36,7 @@ def fetch_matches_from_api(competition_id=None, headers=None):
     data = response.json()
     return data.get('matches', [])
 
-def process_match_data(match, min_matchday=14, only_finished=True):
+def process_match_data(match, min_matchday=18, only_finished=True):
     """Process a single match data and return a dictionary or None if skipped"""
     # Skip matches before min_matchday
     if match['matchday'] < min_matchday:
@@ -45,9 +46,12 @@ def process_match_data(match, min_matchday=14, only_finished=True):
     if only_finished and match['status'] != 'FINISHED':
         return None
     
-    # Convert UTC time to local time
-    match_date = datetime.fromisoformat(match['utcDate'].replace('Z', '+00:00'))
-    formatted_date = match_date.strftime('%Y-%m-%d')
+    # Convert UTC time to local time with proper timezone handling
+    
+    utc_time = datetime.fromisoformat(match['utcDate'].replace('Z', '+00:00'))
+    brasilia_timezone = pytz.timezone('America/Sao_Paulo')
+    brasilia_time = utc_time.astimezone(brasilia_timezone)
+    formatted_date = brasilia_time.strftime("%Y-%m-%d")
     
     # Handle scores for matches that haven't finished yet
     home_score = None
@@ -131,7 +135,8 @@ def fetch_brasileirao_results(only_finished=True, min_matchday=14, output_file=N
     
     return results_df
 
-    
+def fetch_matchday_results(matchday, base_output_file=None, matchday_output_file=None):
+    """Fetch results for a specific matchday"""
     # Get all results first
     all_results = fetch_brasileirao_results(only_finished=False, output_file=base_output_file)
     
@@ -148,7 +153,8 @@ def fetch_brasileirao_results(only_finished=True, min_matchday=14, output_file=N
     print(f"Matchday {matchday}: {finished_matches} of {total_matches} matches completed")
     
     # Save to matchday-specific CSV
-    save_dataframe_to_csv(matchday_results, matchday_output_file)
+    if matchday_output_file:
+        save_dataframe_to_csv(matchday_results, matchday_output_file)
     
     return matchday_results
 
