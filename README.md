@@ -8,9 +8,13 @@ This project analyzes **betting odds and match results** from the Brasileirão (
 
 ##  Current Status
 
-- **Data**: A few rounds of Brasileirão results and odds have been collected and stored as CSV files.  
-- **Code**: Scripts are available to fetch data from free APIs and update CSV files.  
-- **Automation**: A local **DAG (Directed Acyclic Graph)** updates the CSV after each round.  
+- **Data**: Match results and betting odds are now stored in Parquet format on an S3 bucket, allowing efficient storage and querying.
+
+- **Code**: Scripts fetch data from free APIs and update Parquet files automatically.
+
+- **Automation**: The DAG is now running on AWS MWAA (Managed Workflows for Apache Airflow) to keep the dataset up to date after each round.
+
+- **Querying**: Historical data can be queried using Athena, enabling quick analysis without downloading the entire dataset.
 
 ⚠️ **Note**: This project is a work in progress and not yet fully automated or complete.  
 
@@ -18,10 +22,15 @@ This project analyzes **betting odds and match results** from the Brasileirão (
 
 ## Features / Goals
 
-- Fetch odds and results data using free APIs.  
-- Automate updates after every round using a DAG (eventually running on a cloud VM).  
-- Store historical data on the cloud for easy access and analysis.  
-- Analyze odds accuracy, trends, and patterns in match outcomes.  
+- **Automated Data Collection**: Fetch match results and betting odds from free APIs and update the dataset automatically.
+
+- **Cloud Storage**: Store historical data in Parquet format on S3 for efficiency and scalability.
+
+- **Workflow Automation**: Maintain up-to-date datasets with an Airflow DAG running on MWAA.
+
+- **Query & Analysis**: Use Athena to query historical data without downloading full datasets.
+
+- **Insights & Evaluation**: Analyze odds accuracy, detect trends, and compare predictions against actual match outcomes.
 
 ---
 
@@ -31,12 +40,10 @@ This project analyzes **betting odds and match results** from the Brasileirão (
   - Collect squad information, player stats, transfers, injuries, and match lineups via web scraping.  
 
 - **Cloud Integration**:  
-  - Run the DAG on a virtual machine and save data to cloud storage for scalability.  
+  - Further optimize the DAG and Athena queries for efficiency and cost management.  
 
 - **Enhanced Analysis**:  
-  - Create visualizations, predictive models, and metrics to assess betting odds.  
+  - Build visualizations, predictive models, and metrics to evaluate betting odds and improve forecasts.  
 
-- **Documentation**:  
-  - Provide clear usage instructions and examples.  
 
 ---

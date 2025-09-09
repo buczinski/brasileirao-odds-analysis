@@ -1,24 +1,13 @@
 from datetime import datetime, timedelta
 from airflow import DAG
 from airflow.operators.python import PythonOperator
-
-# Add the project root to Python path at the beginning of the file
-import sys
 import os
-project_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
-if project_dir not in sys.path:
-    sys.path.insert(0, project_dir)
+import sys
 
-# Now import your modules
-try:
-    from src.data_collection.fetch_odds import fetch_odds
-    from src.data_collection.fetch_results import fetch_brasileirao_results
-    from src.data_processing.joining_data import join_data
-    print("Imports successful")
-except ImportError as e:
-    print(f"Import error: {e}")
+# Direct imports
+sys.path.append(os.path.join(os.path.dirname(__file__), 'scr'))
 
-# Define default arguments
+# DAG metadata
 default_args = {
     'owner': 'airflow',
     'depends_on_past': False,
@@ -29,59 +18,78 @@ default_args = {
     'retry_delay': timedelta(minutes=5),
 }
 
-# Create the DAG
+DOC_MD = """
+### Brasileirão Odds Analysis
+Pipeline:
+1. fetch_odds   -> Pull odds and append to S3 Parquet.
+2. fetch_results-> Pull match results and append to S3 Parquet.
+3. join_data    -> Join odds + results and write joined Parquet.
+
+All credentials & bucket come from Airflow Variables:
+- BRASILEIRAO_DATA_BUCKET
+- ODDS_API_KEY
+- FOOTBALL_DATA_API_KEY
+"""
+
 dag = DAG(
-    'brasileirao_odds_analysis',
+    dag_id='brasileirao_odds_analysis',
     default_args=default_args,
     description='Fetch and process Brasileirão odds and results',
-    schedule='0 23 * * 1',  # Run weekly on Mondays at 23:00 UTC
-    catchup=False
+    schedule='0 02 * * 2',   # Tuesdays 02:00 UTC
+    catchup=False,
+    doc_md=DOC_MD,
+    tags=['brasileirao', 'odds', 'football']
 )
 
-# Define API key (consider using Airflow Variables or environment variables)
-API_KEY = 'e791c01b3f81d55c9bf9c4134503fe56'
-
-# Define task functions with proper paths for Airflow
+# Task callables (lazy imports & variable access)
 def fetch_odds_task():
-    data_dir = os.path.join(os.environ.get('AIRFLOW_HOME', '~/airflow'), 'data/raw')
-    data_dir = os.path.expanduser(data_dir)
-    os.makedirs(data_dir, exist_ok=True)
-    return fetch_odds(API_KEY, f'{data_dir}/brasileirao_odds.csv')
+    from airflow.models import Variable
+    from scr.fetch_odds import fetch_odds
+    bucket = Variable.get("BRASILEIRAO_DATA_BUCKET")
+    api_key = Variable.get("ODDS_API_KEY")
+    odds_path = f"s3://{bucket}/data/raw/odds/brasileirao_odds.parquet"
+    fetch_odds(api_key, odds_path)
+    return None
 
 def fetch_results_task():
-    data_dir = os.path.join(os.environ.get('AIRFLOW_HOME', '~/airflow'), 'data/raw')
-    data_dir = os.path.expanduser(data_dir)
-    os.makedirs(data_dir, exist_ok=True)
-    return fetch_brasileirao_results(f'{data_dir}/brasileirao_results.csv')
+    from airflow.models import Variable
+    from scr.fetch_results import fetch_brasileirao_results
+    bucket = Variable.get("BRASILEIRAO_DATA_BUCKET")
+    fd_key = Variable.get("FOOTBALL_DATA_API_KEY")
+    os.environ["FOOTBALL_DATA_API_KEY"] = fd_key  # fetch_results reads env
+    results_path = f"s3://{bucket}/data/raw/results/brasileirao_results.parquet"
+    fetch_brasileirao_results(only_finished=False, output_file=results_path)
+    return None
 
 def join_data_task():
-    raw_dir = '/opt/airflow/data/raw'
-    processed_dir = '/opt/airflow/data/processed'
-    os.makedirs(processed_dir, exist_ok=True)
-    return join_data(
-        f'{raw_dir}/brasileirao_odds.csv',
-        f'{raw_dir}/brasileirao_results.csv',
-        f'{processed_dir}/brasileirao_odds_results.csv'
-    )
+    from airflow.models import Variable
+    from scr.joining_data import join_data
+    bucket = Variable.get("BRASILEIRAO_DATA_BUCKET")
+    odds_path = f"s3://{bucket}/data/raw/odds/brasileirao_odds.parquet"
+    results_path = f"s3://{bucket}/data/raw/results/brasileirao_results.parquet"
+    joined_path = f"s3://{bucket}/data/processed/brasileirao_odds_results.parquet"
+    join_data(odds_path, results_path, joined_path)
+    return None
 
-# Create tasks
-t1 = PythonOperator(
+t_fetch_odds = PythonOperator(
     task_id='fetch_odds',
     python_callable=fetch_odds_task,
     dag=dag,
+    execution_timeout=timedelta(minutes=5)
 )
 
-t2 = PythonOperator(
+t_fetch_results = PythonOperator(
     task_id='fetch_results',
     python_callable=fetch_results_task,
     dag=dag,
+    execution_timeout=timedelta(minutes=5)
 )
 
-t3 = PythonOperator(
+t_join = PythonOperator(
     task_id='join_data',
     python_callable=join_data_task,
     dag=dag,
+    execution_timeout=timedelta(minutes=10)
 )
 
-# Set dependencies
-[t1, t2] >> t3  # t3 depends on both t1 and t2
+[t_fetch_odds, t_fetch_results] >> t_join

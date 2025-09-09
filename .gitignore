@@ -1,7 +1,22 @@
-data/.DS_Store
-data/processed/.DS_Store
-.vscode/settings.json
-data/raw/.DS_Store
-src/.DS_Store
+# OS / IDE
 .DS_Store
-data/.DS_Store
+.vscode/
+.idea/
+__pycache__/
+*.pyc
+
+# Envs
+.venv/
+.env
+.env.*
+
+# Data / outputs / logs
+data/
+*.parquet
+*.csv
+logs/
+.airflow/
+.ipynb_checkpoints/
+
+# AWS local config (never commit)
+.aws/
